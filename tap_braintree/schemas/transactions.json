@@ -130,7 +130,9 @@
             "anyOf": [
                 {
                     "type": "array",
-                    "items": "object"
+                    "items": {
+                        "type": "object"
+                    }
                 },
                 {
                     "type": "null"
