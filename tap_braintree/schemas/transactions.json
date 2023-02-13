@@ -116,7 +116,7 @@
                     "type": ["null", "string"]
                 },
                 "decision_reasons": {
-                    "type": ["null", "array", "object"]
+                    "type": ["null", "string", "object"]
                 },
                 "id": {
                     "type": ["null", "string"]
