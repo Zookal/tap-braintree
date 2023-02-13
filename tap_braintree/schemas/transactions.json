@@ -134,48 +134,7 @@
                 {
                     "type": "array",
                     "items": {
-                        "type": ["null", "object"],
-                        "properties": {
-                            "id": {
-                                "type": ["null", "string"]
-                            },
-                            "global_id": {
-                                "type": ["null", "string"]
-                            },
-                            "case_number": {
-                                "type": ["null", "string"]
-                            },
-                            "merchant_account_id": {
-                                "type": ["null", "string"]
-                            },
-                            "created_at": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "date_opened": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "reply_by_date": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "processor_reply_by_date": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "response_deadline": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "updated_at": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "status": {
-                                "type": ["null", "string"]
-                            }
-                        }
+                        "type": ["null", "object", "array"]
                     }
                 }
             ]
