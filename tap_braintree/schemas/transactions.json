@@ -129,12 +129,12 @@
         "disputes": {
             "anyOf": [
                 {
-                    "type": "null"
+                    "type": ["null", "object", "string"]
                 },
                 {
                     "type": "array",
                     "items": {
-                        "type": ["null", "object", "array"]
+                        "type": ["null", "object", "string", "array"]
                     }
                 }
             ]
