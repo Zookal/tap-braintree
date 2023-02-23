@@ -1,0 +1,73 @@
+{
+    "type": "object",
+    "properties": {
+        "amount_disputed": {
+            "type": ["null", "number"]
+        },
+        "amount_won": {
+            "type": ["null", "number"]
+        },
+        "case_number": {
+            "type": ["null", "string"]
+        },
+        "chargeback_protection_level": {
+            "type": ["null", "string"]
+        },
+        "created_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "currency_iso_code": {
+            "type": ["null", "string"]
+        },
+        "evidence": {
+            "type": ["null", "string", "object", "array"]
+        },
+        "graphql_id": {
+            "type": ["null", "string"]
+        },
+        "id": {
+            "type": "string"
+        },
+        "kind": {
+            "type": ["null", "string"]
+        },
+        "merchant_account_id": {
+            "type": ["null", "string"]
+        },
+        "original_dispute_id": {
+            "type": ["null", "string"]
+        },
+        "processor_comments": {
+            "type": ["null", "string"]
+        },
+        "reason": {
+            "type": ["null", "string"]
+        },
+        "reason_code": {
+            "type": ["null", "string"]
+        },
+        "reason_description": {
+            "type": ["null", "string"]
+        },
+        "received_date": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "reference_number": {
+            "type": ["null", "string"]
+        },
+        "reply_by_date": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "status": {
+            "type": ["null", "string"]
+        },
+        "updated_at": {
+            "type": "string",
+            "format": "date-time"
+        }
+    }
+}
+
