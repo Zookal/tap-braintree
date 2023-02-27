@@ -74,6 +74,8 @@ def _type_transform(value, type_schema):
 
 
 def _transform_field(value, field_schema):
+    LOGGER.info(value)
+    LOGGER.info(field_schema)
     if "anyOf" in field_schema:
         return _anyOf(value, field_schema["anyOf"])
     
