@@ -73,7 +73,7 @@ def _transform_field(value, field_schema):
         return _anyOf(value, field_schema["anyOf"])
     
     if field_schema == {}:
-        return str(dict(value))
+        return str(value.__dict__)
 
     if "array" in field_schema["type"]:
         return _array(value, field_schema["items"])
