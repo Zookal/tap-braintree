@@ -28,9 +28,18 @@ def _array(data, items_schema):
 
 
 def _object(data, properties_schema):
-    return {field: _transform_field(getattr(data, field), field_schema)
-            for field, field_schema in properties_schema.items()
-            if hasattr(data, field)}
+    object = {}
+    for field, field_schema in properties_schema.items():
+        try:
+            if hasattr(data, field):
+                object[field]: _transform_field(getattr(data, field), field_schema)
+        except TypeError:
+            LOGGER.info(f"TypeError when getting {field}.")
+            continue
+    return object
+    # return {field: _transform_field(getattr(data, field), field_schema)
+    #         for field, field_schema in properties_schema.items()
+    #         if hasattr(data, field)}
 
 
 def _type_transform(value, type_schema):
