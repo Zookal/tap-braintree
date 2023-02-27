@@ -74,16 +74,16 @@ def _type_transform(value, type_schema):
 
 
 def _transform_field(value, field_schema):
-    # LOGGER.info(value)
-    # LOGGER.info(field_schema)
+    LOGGER.info(value)
+    LOGGER.info(field_schema)
     if "anyOf" in field_schema:
         return _anyOf(value, field_schema["anyOf"])
     
-    try:
-        if "array" in field_schema["type"]:
-            return _array(value, field_schema["items"])
-    except KeyError:
+    if field_schema == {}:
         return str(value)
+    
+    if "array" in field_schema["type"]:
+        return _array(value, field_schema["items"])
 
     if "object" in field_schema["type"]:
         return _object(value, field_schema["properties"])
