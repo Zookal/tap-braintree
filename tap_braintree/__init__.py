@@ -23,9 +23,8 @@ def do_discover():
     """
 
     LOGGER.info("Starting discovery")
-    catalog_raw = json.dumps(discover())
-    with open("catalog.json", "w") as catalog_file:
-        catalog_file.write(catalog_raw)
+    catalog = discover()
+    json.dump(catalog.to_dict(), sys.stdout, indent=2)
     LOGGER.info("Finished discover")
 
 @utils.handle_top_exception(LOGGER)
