@@ -62,7 +62,6 @@ def main():
         if parsed_args.discover:
             do_discover()
         else:
-            LOGGER.info("Catalog:" + parsed_args.catalog)
             _sync(
                 gateway, 
                 config,
