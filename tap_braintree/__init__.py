@@ -24,7 +24,7 @@ def do_discover():
 
     LOGGER.info("Starting discovery")
     catalog_raw = json.dumps(discover())
-    with open("catalog.json", "w") as catalog_file:
+    with open("/airflow_volume/catalog.json", "w") as catalog_file:
         catalog_file.write(catalog_raw)
     LOGGER.info("Finished discover")
 
