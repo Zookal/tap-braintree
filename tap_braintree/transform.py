@@ -71,6 +71,9 @@ def _transform_field(value, field_schema):
     LOGGER.info(f"Field schema: {field_schema}")
     if "anyOf" in field_schema:
         return _anyOf(value, field_schema["anyOf"])
+    
+    if field_schema == {}:
+        return value
 
     if "array" in field_schema["type"]:
         return _array(value, field_schema["items"])
