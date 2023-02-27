@@ -279,10 +279,15 @@ class Transaction(IncrementSyncWithWindow):
     name = "transactions"
     sdk_call = lambda self, gateway, start, end: gateway.transaction.search(braintree.TransactionSearch.created_at.between(start, end))
 
+class Dispute(IncrementSyncWithWindow):
+    name = "disputes"
+    sdk_call = lambda self, gateway, start, end: gateway.transaction.search(braintree.DisputeSearch.created_at.between(start, end))
+
 STREAMS = {
     "add_ons": AddOn,
     "customers": Customer,
     "discounts": Discount,
     "plans": Plan,
-    "transactions": Transaction
+    "transactions": Transaction,
+    "disputes": Dispute
 }
