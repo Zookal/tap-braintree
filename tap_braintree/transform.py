@@ -10,7 +10,8 @@ class InvalidData(Exception):
 
 
 def transform_row(row, schema):
-    LOGGER.info(row)
+    LOGGER.info(f"Row: {row}")
+    LOGGER.info(f"Schema: {schema}")
     return _transform_field(row, schema)
 
 
@@ -66,8 +67,8 @@ def _type_transform(value, type_schema):
 
 
 def _transform_field(value, field_schema):
-    LOGGER.info(value)
-    LOGGER.info(field_schema)
+    LOGGER.info(f"Value: {value}")
+    LOGGER.info(f"Field schema: {field_schema}")
     if "anyOf" in field_schema:
         return _anyOf(value, field_schema["anyOf"])
 
