@@ -62,10 +62,11 @@ def main():
         if parsed_args.discover:
             do_discover()
         else:
+            LOGGER.info("Catalog:" + parsed_args.catalog)
             _sync(
                 gateway, 
                 config,
-                singer.Catalog.from_dict(parsed_args.catalog) or singer.Catalog.from_dict(discover()),
+                parsed_args.catalog or singer.Catalog.from_dict(discover()),
                 state
             )    
     except braintree.exceptions.authentication_error.AuthenticationError:
