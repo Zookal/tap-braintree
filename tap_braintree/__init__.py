@@ -23,8 +23,9 @@ def do_discover():
     """
 
     LOGGER.info("Starting discovery")
-    catalog = discover()
-    json.dump(catalog, sys.stdout, indent=2)
+    catalog_raw = json.dumps(discover())
+    with open("catalog.json", "w") as catalog_file:
+        catalog_file.write(catalog_raw)
     LOGGER.info("Finished discover")
 
 @utils.handle_top_exception(LOGGER)
@@ -65,7 +66,7 @@ def main():
             _sync(
                 gateway, 
                 config,
-                singer.Catalog.from_dict(parsed_args.catalog) or discover(),
+                singer.Catalog.from_dict(discover()),
                 state
             )    
     except braintree.exceptions.authentication_error.AuthenticationError:
