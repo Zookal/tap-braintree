@@ -65,7 +65,7 @@ def main():
             _sync(
                 gateway, 
                 config,
-                parsed_args.catalog or discover(),
+                singer.Catalog.load(parsed_args.catalog) or discover(),
                 state
             )    
     except braintree.exceptions.authentication_error.AuthenticationError:
