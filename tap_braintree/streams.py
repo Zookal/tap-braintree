@@ -288,6 +288,6 @@ STREAMS = {
     "customers": Customer,
     "discounts": Discount,
     "plans": Plan,
-    "transactions": Transaction,
+    # "transactions": Transaction,
     "disputes": Dispute
 }
