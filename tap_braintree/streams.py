@@ -163,7 +163,10 @@ class IncrementSyncWithWindow(Stream):
         for start, end in self.daterange(period_start, period_end):
             end = min(end, period_end)
 
-            data = self.sdk_call(gateway, start, end)
+            if self.name == 'disputes':
+                data = self.sdk_call(gateway, start, end).items
+            else:
+                data = self.sdk_call(gateway, start, end)
             time_extracted = utils.now()
 
             row_written_count = 0
