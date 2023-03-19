@@ -21,7 +21,31 @@
             "type": ["null", "string"]
         },
         "evidence": {
-            "type": ["null", "string", "object", "array"]
+            "type": ["null", "array"],
+            "items": {
+                "type": ["null", "object"],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "global_id": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "category": {
+                        "type": ["null", "string"]
+                    },
+                    "tag": {
+                        "type": ["null", "string"]
+                    },
+                    "comment": {
+                        "type": ["null", "string"]
+                    }
+                }
+            }
         },
         "graphql_id": {
             "type": ["null", "string"]
