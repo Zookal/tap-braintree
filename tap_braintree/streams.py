@@ -285,7 +285,7 @@ class Dispute(IncrementSyncWithWindow):
 
 STREAMS = {
     "add_ons": AddOn,
-    "customers": Customer,
+    # "customers": Customer,
     "discounts": Discount,
     "plans": Plan,
     # "transactions": Transaction,
