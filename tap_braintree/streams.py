@@ -138,7 +138,7 @@ class IncrementSyncWithWindow(Stream):
         Sync function for incremental stream with window logic
         """
         has_updated_at = self.name in {"customers", "transactions"}
-        has_disbursement = self.name in {"transactions"}
+        has_disbursement = self.name in {}
         
         latest_start_date = utils.strptime_to_utc(state.get("bookmarks", {}).get(self.name, {}).get(self.replication_keys, config['start_date']) )
 
@@ -288,9 +288,9 @@ class Dispute(IncrementSyncWithWindow):
 
 STREAMS = {
     "add_ons": AddOn,
-    # "customers": Customer,
+    "customers": Customer,
     "discounts": Discount,
     "plans": Plan,
-    # "transactions": Transaction,
+    "transactions": Transaction,
     "disputes": Dispute
 }
