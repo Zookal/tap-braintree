@@ -138,7 +138,7 @@ class IncrementSyncWithWindow(Stream):
         Sync function for incremental stream with window logic
         """
         has_updated_at = self.name in {"customers", "transactions"}
-        has_disbursement = self.name in {}
+        has_disbursement = self.name in {"transactions"}
         
         latest_start_date = utils.strptime_to_utc(state.get("bookmarks", {}).get(self.name, {}).get(self.replication_keys, config['start_date']) )
 
