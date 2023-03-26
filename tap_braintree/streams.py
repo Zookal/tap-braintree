@@ -1,9 +1,16 @@
 import pytz
 import singer
 import braintree
+import backoff
 from singer import utils
 from datetime import datetime, timedelta
 from .transform import transform_row
+
+from braintree.exceptions.too_many_requests_error import TooManyRequestsError
+from braintree.exceptions.server_error import ServerError
+from braintree.exceptions.service_unavailable_error import ServiceUnavailableError
+from braintree.exceptions.gateway_timeout_error import GatewayTimeoutError
+
 
 TRAILING_DAYS = timedelta(days=30)
 DEFAULT_TIMESTAMP = "1970-01-01T00:00:00Z"
@@ -80,12 +87,20 @@ class Stream:
         for n in range(int((end_date - start_date).days)):
             yield start_date + timedelta(n), start_date + timedelta(n + 1)
 
-class IncrementSyncWithoutWindow(Stream):
+class SyncWithoutWindow(Stream):
     sdk_call = None
     key_properties = ["id"]
     replication_keys = "updated_at"
     replication_method = "INCREMENTAL"
 
+    # Backoff the request for 5 times when ConnectionError, TooManyRequestsError (status code = 429),
+    # ServerError(status code = 500) , ServiceUnavailableError (status code = 503) ,
+    # or GatewayTimeoutError (status code = 504) occurs
+    @backoff.on_exception(
+        backoff.expo,
+        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError),
+        max_tries=5,
+        factor=2)
     def sync(self, gateway, config, schema, state, selected_streams):
         """
         Sync function for incremental stream without window logic
@@ -127,18 +142,30 @@ class IncrementSyncWithoutWindow(Stream):
 
         return row_written_count
 
-class IncrementSyncWithWindow(Stream):
+class SyncWithWindow(Stream):
     sdk_call = None
     key_properties = ["id"]
     replication_keys = "created_at"
     replication_method = "INCREMENTAL"
 
+    # Backoff the request for 5 times when ConnectionError, TooManyRequestsError (status code = 429),
+    # ServerError(status code = 500) , ServiceUnavailableError (status code = 503) ,
+    # or GatewayTimeoutError (status code = 504) occurs
+    @backoff.on_exception(
+        backoff.expo,
+        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError),
+        max_tries=5,
+        factor=2)
+    def GetRecords(self, gateway, start, end):
+        """Return records between given date window"""
+        return self.sdk_call(gateway, start, end)
+
     def sync(self, gateway, config, schema, state, selected_streams):
         """
         Sync function for incremental stream with window logic
         """
-        has_updated_at = self.name in {"customers", "transactions"}
-        has_disbursement = self.name in {"transactions"}
+        has_updated_at = self.name in {"customers", "disputes", "subscriptions", "transactions"}
+        has_disbursement = self.name in {"disputes", "transactions"}
         
         latest_start_date = utils.strptime_to_utc(state.get("bookmarks", {}).get(self.name, {}).get(self.replication_keys, config['start_date']) )
 
@@ -163,10 +190,7 @@ class IncrementSyncWithWindow(Stream):
         for start, end in self.daterange(period_start, period_end):
             end = min(end, period_end)
 
-            if self.name == 'disputes':
-                data = self.sdk_call(gateway, start, end).disputes
-            else:
-                data = self.sdk_call(gateway, start, end)
+            data = self.GetRecords(gateway, start, end)
             time_extracted = utils.now()
 
             row_written_count = 0
@@ -176,6 +200,9 @@ class IncrementSyncWithWindow(Stream):
                 # Ensure updated_at consistency
                 if has_updated_at and not getattr(row, 'updated_at'):
                     row.updated_at = row.created_at
+
+                if self.name == "settlement_batch_summary":
+                    row['settlement_date'] = utils.strftime(start)
 
                 transformed = transform_row(row, schema)
                 
@@ -247,6 +274,14 @@ class FullTableSync(Stream):
     sdk_call = None
     key_properties = ["id"]
 
+    # Backoff the request for 5 times when ConnectionError, TooManyRequestsError (status code = 429),
+    # ServerError(status code = 500) , ServiceUnavailableError (status code = 503) ,
+    # or GatewayTimeoutError (status code = 504) occurs
+    @backoff.on_exception(
+        backoff.expo,
+        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError),
+        max_tries=5,
+        factor=2)
     def sync(self, gateway, config, schema, state, selected_streams):
         """
         Sync function for full_table stream
@@ -262,35 +297,53 @@ class FullTableSync(Stream):
                 
         return row_written_count
     
-class AddOn(IncrementSyncWithoutWindow):
+class AddOn(SyncWithoutWindow):
     name = "add_ons"
     sdk_call = lambda self, gateway: gateway.add_on.all()
 
-class Customer(IncrementSyncWithWindow):
+class Customer(SyncWithWindow):
     name = "customers"
     sdk_call = lambda self, gateway, start, end: gateway.customer.search(braintree.CustomerSearch.created_at.between(start, end))
 
-class Discount(IncrementSyncWithoutWindow):
+class Discount(SyncWithoutWindow):
     name = "discounts"
     sdk_call = lambda self, gateway: gateway.discount.all()
+    
+class Dispute(SyncWithWindow):
+    name = "disputes"
+    replication_keys = "received_date"
+    sdk_call = lambda self, gateway, start, end: gateway.dispute.search(braintree.DisputeSearch.received_date.between(start, end)).disputes.items
 
-class Plan(IncrementSyncWithoutWindow):
+class MerchantAccount(FullTableSync):
+    name = "merchant_accounts"
+    sdk_call = lambda self, gateway: gateway.merchant_account.all().merchant_accounts
+
+class Plan(SyncWithoutWindow):
     name = "plans"
     sdk_call = lambda self, gateway: gateway.plan.all()
 
-class Transaction(IncrementSyncWithWindow):
+class SettlementBatchSummary(SyncWithWindow):
+    name = "settlement_batch_summary"
+    replication_keys = "settlement_date"
+    key_properties = ["settlement_date"]
+    sdk_call = lambda self, gateway, start, end: gateway.settlement_batch_summary.generate(start.strftime("%Y-%m-%d")).settlement_batch_summary.records
+
+class Subscription(SyncWithWindow):
+    name = "subscriptions"
+    sdk_call = lambda self, gateway, start, end: gateway.subscription.search(braintree.SubscriptionSearch.created_at.between(start, end))
+
+class Transaction(SyncWithWindow):
     name = "transactions"
     sdk_call = lambda self, gateway, start, end: gateway.transaction.search(braintree.TransactionSearch.created_at.between(start, end))
-
-class Dispute(IncrementSyncWithWindow):
-    name = "disputes"
-    sdk_call = lambda self, gateway, start, end: gateway.dispute.search(braintree.DisputeSearch.received_date.between(start, end))
 
 STREAMS = {
     "add_ons": AddOn,
     "customers": Customer,
     "discounts": Discount,
+    "disputes": Dispute,
+    "merchant_accounts": MerchantAccount,
     "plans": Plan,
-    "transactions": Transaction,
-    "disputes": Dispute
+    "settlement_batch_summary": SettlementBatchSummary,
+    "subscriptions": Subscription,
+    "transactions": Transaction
 }
