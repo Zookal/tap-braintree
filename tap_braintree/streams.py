@@ -98,7 +98,7 @@ class SyncWithoutWindow(Stream):
     # or GatewayTimeoutError (status code = 504) occurs
     @backoff.on_exception(
         backoff.expo,
-        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError),
+        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError, ConnectionResetError),
         max_tries=5,
         factor=2)
     def sync(self, gateway, config, schema, state, selected_streams):
@@ -153,7 +153,7 @@ class SyncWithWindow(Stream):
     # or GatewayTimeoutError (status code = 504) occurs
     @backoff.on_exception(
         backoff.expo,
-        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError),
+        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError, ConnectionResetError),
         max_tries=5,
         factor=2)
     def GetRecords(self, gateway, start, end):
@@ -279,7 +279,7 @@ class FullTableSync(Stream):
     # or GatewayTimeoutError (status code = 504) occurs
     @backoff.on_exception(
         backoff.expo,
-        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError),
+        (ConnectionError, TooManyRequestsError, ServerError, ServiceUnavailableError, GatewayTimeoutError, ConnectionResetError),
         max_tries=5,
         factor=2)
     def sync(self, gateway, config, schema, state, selected_streams):
