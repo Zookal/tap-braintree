@@ -340,7 +340,7 @@ STREAMS = {
     "add_ons": AddOn,
     "customers": Customer,
     "discounts": Discount,
-    "disputes": Dispute,
+    # "disputes": Dispute,
     "merchant_accounts": MerchantAccount,
     "plans": Plan,
     "settlement_batch_summary": SettlementBatchSummary,
